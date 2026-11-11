@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Strategic Initiatives Executive Dashboard - LifeBank A (October 2026 Updated)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-btn.active {
+            border-bottom: 3px solid #0284c7;
+            color: #0284c7;
+            font-weight: 700;
+            background-color: #f0f7ff;
+        }
+        .editable-field {
+            transition: background-color 0.2s, outline 0.2s;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        .edit-mode .editable-field {
+            background-color: #f0f9ff;
+            outline: 1px dashed #0284c7;
+            cursor: pointer;
+        }
+        .edit-mode .editable-field:hover {
+            background-color: #e0effe;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed top-20 right-5 z-50 transform translate-x-full transition-transform duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMsg">Dashboard Updated Successfully</span>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-3 sm:h-16 gap-3 sm:gap-0">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <img src="https://lbrb.ph/icon.png" alt="LifeBank Logo" class="w-9 h-9 object-contain rounded-lg" onerror="this.src='https://placehold.co/36x36/0284c7/ffffff?text=LB'">
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight">LifeBank A - Rural Bank</h1>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">2026 Strategic Initiatives Executive Dashboard</p>
+                    </div>
+                </div>
+
+                <!-- Date & Controls -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="hidden md:flex items-center bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200">
+                        <i class="fa-regular fa-calendar text-sky-600 mr-2"></i> As of October 2026 (Monthly Review)
+                    </div>
+                    
+                    <!-- Toggle Edit Mode Button -->
+                    <button onclick="toggleEditMode()" id="editModeToggleBtn" class="px-3.5 py-1.5 text-xs font-bold bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg transition flex items-center gap-1.5 border border-sky-300 shadow-sm">
+                        <i class="fa-solid fa-pen-to-square"></i> <span id="editModeBtnText">Enable Edit Mode</span>
+                    </button>
+
+                    <button onclick="openEditKpiModal()" class="px-3 py-1.5 text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg transition flex items-center gap-1.5 border border-amber-300 shadow-sm">
+                        <i class="fa-solid fa-sliders"></i> Edit Portfolio & KPIs
+                    </button>
+                    
+                    <button onclick="resetToDefaultData()" class="px-2.5 py-1.5 text-xs font-medium bg-slate-100 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-slate-600 rounded-lg transition flex items-center gap-1.5 border border-slate-300" title="Reset all data to initial defaults">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Data
+                    </button>
+                    
+                    <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition flex items-center gap-1.5 border border-slate-300">
+                        <i class="fa-solid fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section Tabs -->
+            <nav class="flex space-x-2 sm:space-x-8 border-t border-slate-100 overflow-x-auto text-xs sm:text-sm font-medium">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active py-3 px-3 sm:px-4 text-slate-600 hover:text-sky-600 whitespace-nowrap transition flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie"></i> Executive Overview
+                </button>
+                <button onclick="switchTab('quarterly')" id="tab-quarterly" class="tab-btn py-3 px-3 sm:px-4 text-slate-600 hover:text-sky-600 whitespace-nowrap transition flex items-center gap-2">
+                    <i class="fa-solid fa-list-check"></i> Quarterly Execution Status
+                </button>
+                <button onclick="switchTab('portfolio')" id="tab-portfolio" class="tab-btn py-3 px-3 sm:px-4 text-slate-600 hover:text-sky-600 whitespace-nowrap transition flex items-center gap-2">
+                    <i class="fa-solid fa-sack-dollar"></i> Portfolio & Financial Performance
+                </button>
+                <button onclick="switchTab('actionplan')" id="tab-actionplan" class="tab-btn py-3 px-3 sm:px-4 text-slate-600 hover:text-sky-600 whitespace-nowrap transition flex items-center gap-2">
+                    <i class="fa-solid fa-table-list"></i> Full Action Plan & Risk Matrix
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- EDIT MODE BAR NOTICE -->
+        <div id="editModeBanner" class="hidden bg-sky-600 text-white px-4 py-3 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-medium">
+                <i class="fa-solid fa-pen-to-square text-sky-200 text-lg"></i>
+                <span><strong>Interactive Edit Mode Active:</strong> You can click on dashed text fields to edit content directly, or use modal controls to update financial targets and initiatives!</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openAddInitiativeModal()" class="px-3 py-1.5 bg-white text-sky-700 hover:bg-sky-50 font-bold text-xs rounded-lg shadow transition flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add Initiative
+                </button>
+                <button onclick="openEditKpiModal()" class="px-3 py-1.5 bg-sky-800 text-white hover:bg-sky-900 font-bold text-xs rounded-lg border border-sky-400 transition flex items-center gap-1">
+                    <i class="fa-solid fa-sliders"></i> Edit Metrics
+                </button>
+            </div>
+        </div>
+
+        <!-- KEY METRICS KPI BAR -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <!-- Overall Progress -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Overall Progress</span>
+                    <span class="p-2 rounded-lg bg-emerald-50 text-emerald-600 text-xs"><i class="fa-solid fa-bars-progress"></i></span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpi-overall-progress" class="text-2xl font-extrabold text-slate-900">40.6%</span>
+                    <span id="kpi-overall-counts" class="text-xs text-slate-500 font-medium">(13 / 32 Done/Exceeded)</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                    <div id="kpi-overall-bar" class="bg-emerald-600 h-1.5 rounded-full transition-all duration-300" style="width: 40.6%"></div>
+                </div>
+            </div>
+
+            <!-- Target Health Ratio -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Target Health</span>
+                    <span class="p-2 rounded-lg bg-sky-50 text-sky-600 text-xs"><i class="fa-solid fa-heart-pulse"></i></span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpi-health-ratio" class="text-2xl font-extrabold text-sky-700">62.5%</span>
+                    <span class="text-xs text-slate-500 font-medium">On-Track, Exceeded & Done</span>
+                </div>
+                <p id="kpi-health-sub" class="text-[11px] text-slate-500 mt-1">20 of 32 Initiatives Healthy</p>
+            </div>
+
+            <!-- Total Loan Portfolio Card -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Loan Portfolio</span>
+                    <span class="p-2 rounded-lg bg-indigo-50 text-indigo-600 text-xs">
+                        <i class="fa-solid fa-vault"></i>
+                    </span>
+                </div>
+
+                <div class="flex items-baseline justify-between mb-3">
+                    <div>
+                        <span id="kpi-total-portfolio" class="text-2xl font-extrabold text-slate-900">₱1,045.5M</span>
+                        <span id="kpi-total-target" class="text-xs text-slate-400 font-medium"> / ₱1,184.0M Target</span>
+                    </div>
+                    <span id="kpi-total-percent" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                        88.3%
+                    </span>
+                </div>
+
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-4">
+                    <div id="kpi-total-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 88.3%"></div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 space-y-2.5">
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="font-medium text-slate-600">SDID</span>
+                            <span class="text-slate-500">
+                                <strong id="kpi-sdid-val" class="text-slate-800">₱841M</strong> / <span id="kpi-sdid-tgt">₱934M</span>
+                                <span id="kpi-sdid-pct" class="text-slate-400 font-semibold ml-1">(90.0%)</span>
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                            <div id="kpi-sdid-bar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 90.0%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center text-xs mb-1">
+                            <span class="font-medium text-slate-600">CRD</span>
+                            <span class="text-slate-500">
+                                <strong id="kpi-crd-val" class="text-slate-800">₱204.5M</strong> / <span id="kpi-crd-tgt">₱250M</span>
+                                <span id="kpi-crd-pct" class="text-slate-400 font-semibold ml-1">(81.8%)</span>
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                            <div id="kpi-crd-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 81.8%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Target Card -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">CRD Revenue Target</span>
+                    <span class="p-2 rounded-lg bg-amber-50 text-amber-600 text-xs">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+                </div>
+
+                <div class="flex items-baseline justify-between mb-1">
+                    <div>
+                        <span id="kpi-rev-actual" class="text-2xl font-extrabold text-slate-900">₱17.732M</span>
+                        <span id="kpi-rev-target" class="text-xs text-slate-400 font-medium"> / ₱25.0M Target</span>
+                    </div>
+                    <span id="kpi-rev-percent" class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+                        70.9%
+                    </span>
+                </div>
+                <p id="kpi-rev-sub" class="text-[11px] text-slate-400 mb-3">₱17,731,628.20 • As of Oct 2026</p>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-4">
+                    <div id="kpi-rev-bar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 70.9%"></div>
+                </div>
+            </div>
+
+            <!-- Employee Attrition -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition col-span-2 sm:col-span-1">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Employee Attrition</span>
+                    <span class="p-2 rounded-lg bg-purple-50 text-purple-600 text-xs"><i class="fa-solid fa-users-gear"></i></span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpi-attrition-val" class="text-2xl font-extrabold text-purple-700">16.0%</span>
+                    <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-check-circle"></i> Excellent</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Target &le; <span id="kpi-attrition-target">19.0%</span> (HD Pillar)</p>
+            </div> 
+        </div>
+
+        <!-- TAB 1: EXECUTIVE OVERVIEW -->
+        <div id="sec-overview" class="tab-content space-y-6">
+            
+            <!-- Dashboard Highlights Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Status Breakdown Doughnut Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <h2 class="font-bold text-slate-800 text-base">Indicator Status Breakdown</h2>
+                            <span id="doughnutTotalCount" class="text-xs text-slate-400 font-medium">32 Strategic Items</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4">Distribution across execution health states (including Dark Green for Exceeded).</p>
+                    </div>
+
+                    <!-- Chart Container with Center Text Overlay -->
+                    <div class="relative flex justify-center items-center h-56">
+                        <canvas id="statusDoughnutChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span id="doughnutCenterPct" class="text-2xl font-extrabold text-slate-800">62.5%</span>
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Healthy Rate</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Legend Grid -->
+                    <div id="doughnutLegendGrid" class="grid grid-cols-2 gap-2 mt-4 text-xs font-medium">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Quarterly Loan Portfolio Trajectory Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-2">
+                            <h2 class="font-bold text-slate-800 text-base">Loan Portfolio & Deposit Performance Trajectory</h2>
+                            <span class="bg-sky-100 text-sky-800 text-xs px-2.5 py-1 rounded-md font-semibold">As of October 2026</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">Actual vs. Target comparison across BBOD Deposits, CRD, and SDID portfolios.</p>
+                    </div>
+
+                    <div class="h-56 relative mb-3">
+                        <canvas id="portfolioBarChart"></canvas>
+                    </div>
+                    
+                    <!-- EXPLICIT LEGEND BOXES FOR TARGET & ACTUAL (PLACED BELOW THE CHART WITH GRAY TARGET BOX) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-4 h-4 rounded bg-[#cbd5e1] flex-shrink-0 shadow-sm inline-block"></span>
+                            <div>
+                                <span class="font-bold text-slate-800">Target Amount (Gray)</span>
+                                <p class="text-[10px] text-slate-500">Committed baseline / period goal</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Footer Legend / Statistics -->
+                    <div id="portfolioSummaryFooter" class="flex flex-wrap justify-between items-center pt-3 border-t border-slate-100 text-xs text-slate-600 font-medium">
+                        <!-- Updated via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Strategic Pillars Cards (Editable) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Pillar 1 -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-700">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">PILLAR 1</span>
+                        <span class="text-[11px] bg-emerald-800 text-white px-2 py-0.5 rounded font-bold">BBOD Exceeded</span>
+                    </div>
+                    <h3 id="pillar1-title" class="font-bold text-slate-800 text-sm editable-field" onblur="savePillarText('pillar1-title', this.innerText)">Deposit Growth & Self-Sustainment</h3>
+                    <div class="mt-3 space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">BBOD Deposits:</span>
+                            <span id="pillar1-val1" class="font-bold text-emerald-700">₱115.9M / ₱111.0M (+₱4.9M)</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Full-Year Goal:</span>
+                            <span class="font-bold text-slate-700">₱667.0M Target</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">EnCash/ECPay Fees:</span>
+                            <span id="pillar1-val2" class="font-bold text-emerald-600">₱739K / ₱750K (98.6%)</span>
+                        </div>
+                    </div>
+                    <p id="pillar1-desc" class="text-[11px] text-slate-500 mt-3 leading-snug editable-field" onblur="savePillarText('pillar1-desc', this.innerText)">
+                        Exceeded current period target by ₱4.9M with ₱115.9M accumulated deposits vs ₱111.0M target (379 net new accounts), progressing towards ₱667M full-year goal.
+                    </p>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-indigo-500">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">PILLAR 2</span>
+                        <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">BSP Approved</span>
+                    </div>
+                    <h3 id="pillar2-title" class="font-bold text-slate-800 text-sm editable-field" onblur="savePillarText('pillar2-title', this.innerText)">Digital Transformation & Lifelink</h3>
+                    <div class="mt-3 space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Lifelink Adoption:</span>
+                            <span class="font-bold text-emerald-600">Operational (SDID)</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">BSP EPFS License:</span>
+                            <span class="font-bold text-emerald-700">Approved Oct 14</span>
+                        </div>
+                    </div>
+                    <p id="pillar2-desc" class="text-[11px] text-slate-500 mt-3 leading-snug editable-field" onblur="savePillarText('pillar2-desc', this.innerText)">
+                     Phase 1 internal employee testing active; Client Relationship Management rollout set for Nov 2026.
+                    </p>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-500">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">PILLAR 3</span>
+                        <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">CRD & SDID</span>
+                    </div>
+                    <h3 id="pillar3-title" class="font-bold text-slate-800 text-sm editable-field" onblur="savePillarText('pillar3-title', this.innerText)">Portfolio & Asset Quality Growth</h3>
+                    <div class="mt-3 space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Micro Portfolio (SDID):</span>
+                            <span id="pillar3-val1" class="font-bold text-emerald-600">₱841M / ₱934M</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Credit Portfolio (CRD):</span>
+                            <span id="pillar3-val2" class="font-bold text-indigo-600">₱204.5M / ₱250M</span>
+                        </div>
+                    </div>
+                    <p id="pillar3-desc" class="text-[11px] text-slate-500 mt-3 leading-snug editable-field" onblur="savePillarText('pillar3-desc', this.innerText)">
+                        Accelerating Solar Financing, repeat client marketing, and IEP expansion (6 units open) to close year-end gaps.
+                    </p>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-purple-500">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">PILLAR 4</span>
+                        <span class="text-[11px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-bold">HD & FD</span>
+                    </div>
+                    <h3 id="pillar4-title" class="font-bold text-slate-800 text-sm editable-field" onblur="savePillarText('pillar4-title', this.innerText)">Governance & Human Capital</h3>
+                    <div class="mt-3 space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Attrition Rate:</span>
+                            <span id="pillar4-val1" class="font-bold text-emerald-600">16.0% (&le;19.0%)</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Reserve AO Pool:</span>
+                            <span class="font-bold text-emerald-600">10 Candidates</span>
+                        </div>
+                    </div>
+                    <p id="pillar4-desc" class="text-[11px] text-slate-500 mt-3 leading-snug editable-field" onblur="savePillarText('pillar4-desc', this.innerText)">
+                        Succession Plan BR#100 approved with 5 rotational candidates. 5 bench employees permanently assigned.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: QUARTERLY EXECUTION STATUS -->
+        <div id="sec-quarterly" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                
+                <!-- Header & Quarter Filter Buttons -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Quarterly Strategic Deliverables & Performance</h2>
+                        <p class="text-xs text-slate-500">Tracking execution status across all 32 quarterly strategic indicators (October 2026 Updated).</p>
+                    </div>
+                    
+                    <div class="flex bg-slate-100 p-1 rounded-xl gap-1 text-xs font-semibold">
+                        <button onclick="filterQuarterView('Q1')" id="qbtn-Q1" class="q-filter-btn bg-white text-sky-700 shadow-sm px-3 py-1.5 rounded-lg transition">Q1 View</button>
+                        <button onclick="filterQuarterView('Q2')" id="qbtn-Q2" class="q-filter-btn text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg transition">Q2 View</button>
+                        <button onclick="filterQuarterView('Q3')" id="qbtn-Q3" class="q-filter-btn text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg transition">Q3 View</button>
+                        <button onclick="filterQuarterView('Q4')" id="qbtn-Q4" class="q-filter-btn text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg transition">Q4 View</button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Quarter Executive Summary Card -->
+                <div id="quarter-summary-card" class="p-5 rounded-2xl bg-sky-50/40 border border-sky-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Quarterly Indicator Distribution Chart -->
+                <div class="h-72 w-full">
+                    <canvas id="quarterlyProgressChart"></canvas>
+                </div>
+
+                <!-- QUARTERLY TAG BREAKDOWN BADGES & COUNTS UNDER CHART -->
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Quarterly Status Breakdown & Tag Names</h3>
+                    <div id="quarterlyTagBadgesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB 3: PORTFOLIO & FINANCIAL PERFORMANCE -->
+        <div id="sec-portfolio" class="tab-content hidden space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Financial Metrics Breakdown -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <h2 class="font-bold text-slate-900 text-base"><i class="fa-solid fa-calculator text-sky-600 mr-2"></i> Financial Performance Metrics</h2>
+                        <button onclick="openEditKpiModal()" class="text-xs text-sky-600 hover:text-sky-800 font-bold"><i class="fa-solid fa-pen"></i> Edit</button>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+                            <span>BBOD Deposit Growth</span>
+                            <span id="tab3-bbod-exceed" class="font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">Exceeded Target (+₱4.9M)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div id="tab3-bbod-bar" class="bg-emerald-700 h-full transition-all duration-300" style="width: 104.4%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1"> 
+                            <span id="tab3-bbod-act" class="text-slate-600 font-medium">Accumulated: ₱115.9M</span>
+                            <span id="tab3-bbod-tgt" class="text-slate-400">Target: ₱111.0M (Full Year: ₱667.0M)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+                            <span>CRD Loan Portfolio</span>
+                            <span id="tab3-crd-gap" class="text-xs font-bold text-red-700">Behind Target (-₱45.5M)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div id="tab3-crd-bar" class="bg-red-500 h-full transition-all duration-300" style="width: 81.8%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1">
+                            <span id="tab3-crd-act" class="text-slate-600">Actual: ₱204.5M</span>
+                            <span id="tab3-crd-tgt" class="text-slate-400">Target: ₱250.0M</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center text-xs text-slate-500 mb-1">
+                            <span>SDID Loan Portfolio</span>
+                            <span id="tab3-sdid-gap" class="text-xs font-bold text-red-700">Behind Target (-₱93.0M)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div id="tab3-sdid-bar" class="bg-red-500 h-full transition-all duration-300" style="width: 90.0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1">
+                            <span id="tab3-sdid-act" class="text-slate-600">Actual: ₱841.0M</span>
+                            <span id="tab3-sdid-tgt" class="text-slate-400">Target: ₱934.0M</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600 font-medium">Investment Income (FD)</span>
+                            <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">₱6.5M / ₱6.0M (103.3% - Exceeded)</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-600 font-medium">EnCash / ECPay Fees</span>
+                            <span class="text-sky-600 font-bold">₱739K / ₱750K (98.6%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SDID IMP / IEP & Network Expansion Details -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-5">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-bold text-slate-900 text-base"><i class="fa-solid fa-chart-pie text-indigo-600 mr-2"></i> Strategic Portfolio & Infrastructure (SDID)</h2>
+                        <span id="tab3-sdid-goal" class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-semibold">Goal: ₱934M Year-End Target</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs font-semibold text-slate-500 uppercase">IMP Loan Component</span>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">₱687.0M</p>
+                            <p class="text-xs text-slate-500 mt-1">Ikabuhi Microfinance Program</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <span class="text-xs font-semibold text-slate-500 uppercase">IEP Loan Component</span>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">₱247.0M</p>
+                            <p class="text-xs text-slate-500 mt-1">Ikabuhi Entrepreneurial Program</p>
+                        </div>
+                    </div>
+
+                    <!-- Infrastructure & Network Expansion -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-sm mb-3">Branch & Network Expansion Milestones</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center text-xs">
+                            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <span class="block text-lg font-bold text-emerald-700">6 / 10 = 60%</span>
+                                <span class="text-emerald-900 font-medium">New IEP Units Opened</span>
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl border border-purple-100">
+                                <span class="block text-lg font-bold text-purple-700">11 / 20 = 55%</span>
+                                <span class="text-purple-900 font-medium">ECPay in BLUs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TAB 4: FULL ACTION PLAN & RISK MATRIX -->
+        <div id="sec-actionplan" class="tab-content hidden space-y-6">
+            
+            <!-- Risk Matrix Visualization Card (Editable) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h2 class="font-bold text-slate-900 text-base"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i> Project Risk Matrix & Priority Focus Areas</h2>
+                    <span class="text-xs text-slate-400">As of October 2026</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-3.5 bg-red-50 rounded-xl border border-red-200">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-red-700">CRD Asset Quality (Severe)</span>
+                            <span id="risk-crd-npl" class="text-xs font-extrabold text-red-800 editable-field" onblur="saveRiskText('risk-crd-npl', this.innerText)">20.56% PDR</span>
+                        </div>
+                        <p id="risk-crd-desc" class="text-[11px] text-red-600 mt-1 editable-field" onblur="saveRiskText('risk-crd-desc', this.innerText)">
+                            Past Due ratio significantly above the &le;9.9% target threshold. High past-due accounts and slow recovery require priority action.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-300">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-emerald-800">BBOD Deposit Growth</span>
+                            <span id="risk-bbod-gap" class="text-xs font-extrabold text-emerald-900 editable-field" onblur="saveRiskText('risk-bbod-gap', this.innerText)">Exceeded (+₱4.9M)</span>
+                        </div>
+                        <p id="risk-bbod-desc" class="text-[11px] text-emerald-800 mt-1 editable-field" onblur="saveRiskText('risk-bbod-desc', this.innerText)">
+                            Current period target achieved (₱115.9M accumulated vs ₱111.0M target). Driving momentum towards full-year ₱667.0M target.
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 bg-red-50 rounded-xl border border-red-200">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-red-700">SDID PAR (Severe)</span>
+                            <span id="risk-sdid-par" class="text-xs font-extrabold text-red-800 editable-field" onblur="saveRiskText('risk-sdid-par', this.innerText)">17.06% PAR</span>
+                        </div>
+                        <p id="risk-sdid-desc" class="text-[11px] text-red-600 mt-1 editable-field" onblur="saveRiskText('risk-sdid-desc', this.innerText)">
+                            PAR above the &le;10% target threshold. Active monitoring and credit controls being executed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONSOLIDATED ACTION PLAN DATA TABLE (32 INDICATORS) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-base">Consolidated 2026 Strategic Action Plan (<span id="totalInitiativesCount">32</span> Indicators)</h2>
+                        <p class="text-xs text-slate-500">Search and filter across all departmental strategic deliverables, delay justifications, and catch-up plans (As of October 2026).</p>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="flex flex-wrap items-center gap-2 text-xs w-full sm:w-auto">
+                        <button onclick="openAddInitiativeModal()" id="tableAddBtn" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Add Initiative
+                        </button>
+                        <div class="relative flex-1 sm:w-44">
+                            <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search initiative..." class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <i class="fa-solid fa-search absolute left-2.5 top-2.5 text-slate-400"></i>
+                        </div>
+                        <select id="quarterFilter" onchange="filterTable()" class="border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="ALL">All Quarters</option>
+                            <option value="Q1">Quarter 1</option>
+                            <option value="Q2">Quarter 2</option>
+                            <option value="Q3">Quarter 3</option>
+                            <option value="Q4">Quarter 4 / Year-End</option>
+                        </select>
+                        <select id="deptFilter" onchange="filterTable()" class="border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="ALL">All Depts</option>
+                            <option value="BBOD">BBOD</option>
+                            <option value="CRD">CRD</option>
+                            <option value="SDID">SDID</option>
+                            <option value="SRDI">SRDI</option>
+                            <option value="FD">FD</option>
+                            <option value="ISTD">ISTD / IT</option>
+                            <option value="HD">HD</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterTable()" class="border border-slate-300 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="ALL">All Statuses</option>
+                            <option value="Exceeded">Exceeded Target</option>
+                            <option value="Done">Done</option>
+                            <option value="On Track">On Track</option>
+                            <option value="Due/Pending">Due/Pending</option>
+                            <option value="Behind">Behind Base/Target</option>
+                            <option value="NOT YET DUE BUT DONE">NOT YET DUE BUT DONE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scrollable Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider">
+                                <th class="p-3">Quarter</th>
+                                <th class="p-3">Dept</th>
+                                <th class="p-3">Strategic Initiative</th>
+                                <th class="p-3">Indicator / Target</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Justification / Findings</th>
+                                <th class="p-3">Catch Up Plan / Timeline</th>
+                                <th class="p-3 text-center action-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="actionPlanTableBody" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT INITIATIVE -->
+    <div id="initiativeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-200">
+            <div class="bg-sky-600 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Add New Strategic Initiative</h3>
+                <button onclick="closeInitiativeModal()" class="text-sky-100 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="initiativeForm" onsubmit="saveInitiativeForm(event)" class="p-6 space-y-4 text-xs">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Quarter *</label>
+                        <select id="formQuarter" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="Q1">Quarter 1</option>
+                            <option value="Q2">Quarter 2</option>
+                            <option value="Q3">Quarter 3</option>
+                            <option value="Q4">Quarter 4 / Year-End</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Department / Pillar *</label>
+                        <input type="text" id="formDept" required placeholder="e.g. BBOD, CRD, SDID, HD" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Strategic Initiative Title *</label>
+                    <input type="text" id="formInitiative" required placeholder="e.g. Digitalization, Portfolio Growth" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Indicator / Target *</label>
+                    <input type="text" id="formTarget" required placeholder="e.g. 250M loan portfolio" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Execution Status *</label>
+                    <select id="formStatus" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <option value="Exceeded Target">Exceeded Target</option>
+                        <option value="Done">Done</option>
+                        <option value="On Track">On Track</option>
+                        <option value="Due/Pending">Due/Pending</option>
+                        <option value="Behind Target">Behind Target</option>
+                        <option value="Behind Base/Target">Behind Base/Target</option>
+                        <option value="NOT YET DUE BUT DONE">NOT YET DUE BUT DONE</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Justification / Findings</label>
+                    <textarea id="formJustification" rows="2" placeholder="Details on current status..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Catch Up Plan / Timeline</label>
+                    <textarea id="formCatchup" rows="2" placeholder="Action steps..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeInitiativeModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold shadow">Save Initiative</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT PORTFOLIO & KPI METRICS -->
+    <div id="kpiModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-200">
+            <div class="bg-sky-600 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Edit Portfolio & Financial Metrics</h3>
+                <button onclick="closeEditKpiModal()" class="text-sky-100 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="kpiForm" onsubmit="saveKpiForm(event)" class="p-6 space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">SDID Actual (₱M)</label>
+                        <input type="number" step="0.1" id="editSdidActual" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">SDID Target (₱M)</label>
+                        <input type="number" step="0.1" id="editSdidTarget" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">CRD Actual (₱M)</label>
+                        <input type="number" step="0.1" id="editCrdActual" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">CRD Target (₱M)</label>
+                        <input type="number" step="0.1" id="editCrdTarget" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">BBOD Actual (₱M)</label>
+                        <input type="number" step="0.1" id="editBbodActual" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">BBOD Target (₱M)</label>
+                        <input type="number" step="0.1" id="editBbodTarget" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Total Revenue Actual (₱M)</label>
+                        <input type="number" step="0.01" id="editRevActual" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Total Revenue Target (₱M)</label>
+                        <input type="number" step="0.1" id="editRevTarget" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Employee Attrition Rate (%)</label>
+                    <input type="number" step="0.1" id="editAttrition" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeEditKpiModal()" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold shadow">Save Metrics</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+        <p>LifeBank A - Rural Bank &copy; 2026 Executive Management Board Report. Data synchronized as of October 2026.</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Master Default Dataset of 32 Strategic Initiatives (Updated for October 2026)
+        const defaultStrategicData = [
+            { quarter: "Q4", dept: "BBOD", initiative: "Increase deposits and become self sustaining", target: "667.0M Deposits (Regular and SSD)", status: "Exceeded Target", justification: "As of October 31, 2026, total deposit amount is ₱115.9M or 104% of the target for the year (379 net accounts / 32%). Target clients generally prefer banks offering mobile banking and ATM facilities.", catchup: "Continue to market to bigger depositors, increase branch marketing, and increase client visits (Q4 2026)." },
+            { quarter: "Q4", dept: "BBOD", initiative: "Increase deposits and become self sustaining", target: "750K Total Income from EnCash, ECPay and other fees", status: "On Track", justification: "As of October 31, 2026, a total of ₱739K or 98.6% of the target for the year has been achieved. On track to reach full target.", catchup: "Continue to promote Bills services of BBOD." },
+            { quarter: "Q4", dept: "BBOD", initiative: "Increase deposits and become self sustaining", target: "At least 20 BLUs with ECPay Services", status: "On Track", justification: "As of October 2026, 11 out of 20 BLUs have been provided with new user access to ECPay. Closely coordinating with SDID and Finance.", catchup: "Continue to facilitate required user access, staffing, and operational readiness toward full BLU implementation." },
+            { quarter: "Q1", dept: "BBOD", initiative: "Increase deposits and become self sustaining", target: "Two-Year Term Special Savings Product Launched", status: "Due/Pending", justification: "Client survey shows preference for short-term placements. 2- to 5-year SSD terms deferred to 2027 for further viability analysis.", catchup: "BBOD is currently benchmarking market peers offering 2-year terms." },
+            { quarter: "Q4", dept: "BBOD / FD", initiative: "Increase deposits and become self sustaining", target: "6M Investment Income", status: "Exceeded Target", justification: "Achieved as of October 31, 2026 at ₱6.5M (103% of target). Will achieve projected ₱6.6M (110%) by year end.", catchup: "For monitoring purposes." },
+            { quarter: "Q2", dept: "SRDI", initiative: "Increase deposits and become self sustaining", target: "Deliver 1 pilot income product concept paper", status: "Done", justification: "Completed and emailed to BBOD on March 10, 2026, regarding Life Insurance product.", catchup: "For monitoring." },
+            { quarter: "Q4", dept: "BBOD / IT", initiative: "Digitalization", target: "50% (2,400 Accounts) of BBOD clients registered on mobile banking", status: "Due/Pending", justification: "BSP EPFS application approved on October 14, 2026. ISTD commenced Phase 1 internal employee testing rollout.", catchup: "Mobile app adoption planning conducted Oct 7, 2026 for Phase 1 to Phase 3 rollout following employee testing." },
+            { quarter: "Q3", dept: "BBOD / IT", initiative: "Digitalization", target: "100% of relationship managers actively using Client Relationship Management", status: "Due/Pending", justification: "Pending BSP EPFS license approval which was granted Oct 14. Frontend revision done.", catchup: "Scheduled for rollout in November 2026." },
+            { quarter: "Q4", dept: "CRD / IT", initiative: "Digitalization", target: "At least 1,090 CRD clients registered in mobile banking", status: "Due/Pending", justification: "EPFS approved Oct 14, 2026. CRD implementation is dependent on ISTD execution of Phase 1 testing.", catchup: "CRD will proceed with client registration and adoption activities upon ISTD's general rollout." },
+            { quarter: "Q4", dept: "CRD", initiative: "Digitalization", target: "Reduce to 5 remaining manual documents", status: "NOT YET DUE BUT DONE", justification: "Manual documents successfully reduced to 5.", catchup: "For monitoring." },
+            { quarter: "Q2", dept: "SDID / IT", initiative: "Digitalization", target: "Lifelink adopted and rolled out to SDID clients", status: "Done", justification: "Lifelink platform operational with active users.", catchup: "Completed." },
+            { quarter: "Q2", dept: "SDID / IT", initiative: "Digitalization", target: "Onsite/Offsite Monitoring System (OOMS) implemented", status: "Due/Pending", justification: "Completed UAT with Unit Supervisors, District Managers, and Division Managers in October 2026.", catchup: "Scheduled for rollout on November 9, 2026." },
+            { quarter: "Q3", dept: "HDD / IT", initiative: "Digitalization", target: "New and improved HRIS implemented in HD operations", status: "On Track", justification: "Transferred to ITD for acquisition. Two vendor proposals received matching target specifications.", catchup: "ICTD included HRIS acquisition in their 2027 Strat Plan. For presentation to MCM." },
+            { quarter: "Q4", dept: "CRD", initiative: "Portfolio and Income Growth", target: "250M loan portfolio", status: "Behind Base/Target", justification: "Portfolio stands at ₱204,542,427.49 as of October 2026. Growth slowed by low inflow of loan applications.", catchup: "Maximize loan application generation, focusing on high-demand Solar Financing and repeat client reactivation." },
+            { quarter: "Q4", dept: "CRD", initiative: "Portfolio and Income Growth", target: "25M Total Income", status: "Behind Base/Target", justification: "Income stands at ₱17,731,628.20 as of September/October 2026. Accrual ongoing through December.", catchup: "Intensify recovery and collection efforts, maximize new bookings, and pursue justified provision reversals." },
+            { quarter: "Q2", dept: "CRD", initiative: "Portfolio and Income Growth", target: "LifeBank Green Loan rolled out", status: "Done", justification: "Green Loan product fully rolled out.", catchup: "For monitoring." },
+            { quarter: "Q3", dept: "SRDI", initiative: "Portfolio and Income Growth", target: "Deliver 1 new loan product studies (pilot or refinement)", status: "NOT YET DUE BUT DONE", justification: "Product study completed ahead of timeline (Solar Loan submitted March 10, 2026).", catchup: "Completed." },
+            { quarter: "Q4", dept: "SDID", initiative: "Portfolio and Income Growth", target: "934M loan portfolio (687M IMP, 247M IEP)", status: "Behind Base/Target", justification: "Portfolio increased to ₱841M as of October 2026.", catchup: "Accelerate release targets and client engagement in Q4." },
+            { quarter: "Q4", dept: "SDID", initiative: "Portfolio and Income Growth", target: "10 IEP units opened (10 New IEP units, 5 BLUs open)", status: "On Track", justification: "6 IEP units opened as of October 2026.", catchup: "On track to complete remaining 4 units by end of 2026." },
+            { quarter: "Q2", dept: "SDID", initiative: "Portfolio and Income Growth", target: "Wash loan plus and solar loan rolled out", status: "Due/Pending", justification: "Fuel and economic cost increases affected member income and capacity to pay.", catchup: "Scheduled to be rolled out by 4th quarter of 2026." },
+            { quarter: "Q4", dept: "CRD", initiative: "Asset Quality Management", target: "9.9% or lower past due ratio", status: "Behind Target", justification: "Actual past due ratio is 20.56% as of October 2026. High past due accounts continue to affect target.", catchup: "Intensify collection/recovery efforts, prioritize high-value delinquent accounts, and accelerate legal actions." },
+            { quarter: "Q4", dept: "SDID", initiative: "Asset Quality Management", target: "10% or lower past due ratio", status: "Behind Target", justification: "Actual past due ratio is 17.06% as of October 2026.", catchup: "Active monitoring, credit risk controls, and collection campaigns." },
+            { quarter: "Q1", dept: "SRDI", initiative: "Asset Quality Management", target: "Quarterly AQM performance reports with root-cause insights", status: "Done", justification: "Completed reports submitted.", catchup: "Completed." },
+            { quarter: "Q2", dept: "HD", initiative: "Annual Performance Bonus & Incentives", target: "Revised PB and Operations Incentives program approved", status: "Due/Pending", justification: "Ongoing deliberations with PMC on thresholds and methodology for 2027 bonus.", catchup: "HDD continuously following up with PMC for final decision." },
+            { quarter: "Q2", dept: "HD", initiative: "Succession Planning", target: "Revised succession planning policy approved", status: "Done", justification: "Succession Plan BR No. 100 S. 2026 approved. Five successors currently under rotational framework.", catchup: "Completed." },
+            { quarter: "Q1", dept: "FD", initiative: "Upgrade BLU services and Structure", target: "New Structure and enhanced JD approved and implemented", status: "Done", justification: "Active implementation approved under M-FD-26-001-2026 Finance Dept Realignment.", catchup: "Completed." },
+            { quarter: "Q2", dept: "SDID / BBOD / FD", initiative: "Upgrade BLU services and Structure", target: "BLU upgraded services implemented", status: "Done", justification: "BOD Approved under BR# 132 S.2026. LifeKiddie and LifeTeen Savers piloted in BLU Cabatuan Sept 8, 2026.", catchup: "Completed." },
+            { quarter: "Q1", dept: "HD", initiative: "Strengthen Hiring & Manpower Pooling", target: "Reserve pool of AOs (10%) implemented and ready for deployment", status: "Done", justification: "Reserve pool established with 10 ready candidates.", catchup: "Completed." },
+            { quarter: "Q1", dept: "HD", initiative: "Strengthen Hiring & Manpower Pooling", target: "5 salaried bench people (to cover immediate gaps) in place", status: "Done", justification: "Five salaried bench employees hired and permanently assigned to different units.", catchup: "Completed." },
+            { quarter: "Q4", dept: "HD", initiative: "Lower Attrition Rate", target: "19% or less attrition rate", status: "On Track", justification: "Actual rate is 1.2% monthly / 16.01% accumulated as of October 2026.", catchup: "Ongoing implementation of Kumustahan re-orientation and 30-60-90 day onboarding program." },
+            { quarter: "Q1", dept: "FD", initiative: "Cash flow forecasting for funding needs", target: "Comprehensive cash flow forecasting prepared and updated monthly", status: "Done", justification: "Model operational and updated monthly.", catchup: "Completed." },
+            { quarter: "Q3", dept: "FD", initiative: "Implement increase in capitalization", target: "Increase in capitalization (by 44M) approved and implemented", status: "Due/Pending", justification: "Inability to meet 2/3 quorum of stockholders as of Q3/Q4 review.", catchup: "May move to 2027 pending stockholder quorum scheduling." }
+        ];
+
+        // Default Financial Metrics (Updated October 2026 values)
+        const defaultKpiMetrics = {
+            sdidActual: 841.0,
+            sdidTarget: 934.0,
+            crdActual: 204.5,
+            crdTarget: 250.0,
+            bbodActual: 115.9, 
+            bbodTarget: 111.0,
+            revActual: 17.73,
+            revTarget: 25.0,
+            attrition: 16.0
+        };
+
+        // State Management with LocalStorage
+        let strategicData = JSON.parse(localStorage.getItem('lifebank_strategicData_v6')) || JSON.parse(JSON.stringify(defaultStrategicData));
+        let kpiMetrics = JSON.parse(localStorage.getItem('lifebank_kpiMetrics_v6')) || JSON.parse(JSON.stringify(defaultKpiMetrics));
+        let pillarTexts = JSON.parse(localStorage.getItem('lifebank_pillarTexts_v6')) || {};
+        let riskTexts = JSON.parse(localStorage.getItem('lifebank_riskTexts_v6')) || {};
+        let isEditMode = false;
+
+        let statusChart, portfolioChart, quarterlyChart;
+
+        // On Page Load
+        window.onload = function() {
+            loadCustomTexts();
+            updateKpiDisplay();
+            initStatusDoughnut();
+            initPortfolioBarChart();
+            initQuarterlyProgressChart();
+            populateTable();
+            filterQuarterView('Q1');
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => toast.classList.add('translate-x-full'), 2500);
+        }
+
+        // Toggle Edit Mode
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const banner = document.getElementById('editModeBanner');
+            const btnText = document.getElementById('editModeBtnText');
+            const toggleBtn = document.getElementById('editModeToggleBtn');
+            const body = document.body;
+
+            if (isEditMode) {
+                body.classList.add('edit-mode');
+                banner.classList.remove('hidden');
+                btnText.innerText = "Exit Edit Mode";
+                toggleBtn.classList.add('bg-sky-600', 'text-white');
+                toggleBtn.classList.remove('bg-sky-50', 'text-sky-700');
+                makeFieldsEditable(true);
+                showToast("Edit Mode Enabled - Click on text/cards to edit");
+            } else {
+                body.classList.remove('edit-mode');
+                banner.classList.add('hidden');
+                btnText.innerText = "Enable Edit Mode";
+                toggleBtn.classList.remove('bg-sky-600', 'text-white');
+                toggleBtn.classList.add('bg-sky-50', 'text-sky-700');
+                makeFieldsEditable(false);
+                showToast("Edit Mode Disabled");
+            }
+            populateTable();
+        }
+
+        function makeFieldsEditable(enable) {
+            document.querySelectorAll('.editable-field').forEach(el => {
+                el.contentEditable = enable ? "true" : "false";
+            });
+        }
+
+        // Save Editable Text Elements
+        function savePillarText(key, text) {
+            pillarTexts[key] = text;
+            localStorage.setItem('lifebank_pillarTexts_v6', JSON.stringify(pillarTexts));
+            showToast("Pillar content saved");
+        }
+
+        function saveRiskText(key, text) {
+            riskTexts[key] = text;
+            localStorage.setItem('lifebank_riskTexts_v6', JSON.stringify(riskTexts));
+            showToast("Risk matrix saved");
+        }
+
+        function loadCustomTexts() {
+            Object.keys(pillarTexts).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = pillarTexts[id];
+            });
+            Object.keys(riskTexts).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = riskTexts[id];
+            });
+        }
+
+        // Reset Data
+        function resetToDefaultData() {
+            if (confirm("Are you sure you want to reset all data, targets, and text back to October 2026 default values?")) {
+                localStorage.removeItem('lifebank_strategicData_v6');
+                localStorage.removeItem('lifebank_kpiMetrics_v6');
+                localStorage.removeItem('lifebank_pillarTexts_v6');
+                localStorage.removeItem('lifebank_riskTexts_v6');
+                
+                strategicData = JSON.parse(JSON.stringify(defaultStrategicData));
+                kpiMetrics = JSON.parse(JSON.stringify(defaultKpiMetrics));
+                pillarTexts = {};
+                riskTexts = {};
+
+                location.reload();
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'quarterly') {
+                filterQuarterView('Q1');
+            }
+        }
+
+        // Update All KPI Displays
+        function updateKpiDisplay() {
+            const totalItems = strategicData.length;
+            const exceededCount = strategicData.filter(i => i.status === 'Exceeded Target' || i.status === 'Exceeded').length;
+            const doneCount = strategicData.filter(i => i.status === 'Done' || i.status === 'NOT YET DUE BUT DONE').length;
+            const onTrackCount = strategicData.filter(i => i.status === 'On Track').length;
+            const completedTotal = doneCount + exceededCount;
+            const healthyCount = completedTotal + onTrackCount;
+
+            const progressPct = totalItems > 0 ? ((completedTotal / totalItems) * 100).toFixed(1) : 0;
+            const healthPct = totalItems > 0 ? ((healthyCount / totalItems) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-overall-progress').innerText = progressPct + '%';
+            document.getElementById('kpi-overall-counts').innerText = `(${completedTotal} / ${totalItems} Done/Exceeded)`;
+            document.getElementById('kpi-overall-bar').style.width = progressPct + '%';
+
+            document.getElementById('kpi-health-ratio').innerText = healthPct + '%';
+            document.getElementById('kpi-health-sub').innerText = `${healthyCount} of ${totalItems} Initiatives Healthy`;
+            document.getElementById('doughnutCenterPct').innerText = healthPct + '%';
+            document.getElementById('doughnutTotalCount').innerText = `${totalItems} Strategic Items`;
+
+            // Total Portfolio Calculation (SDID + CRD)
+            const totalActual = kpiMetrics.sdidActual + kpiMetrics.crdActual;
+            const totalTarget = kpiMetrics.sdidTarget + kpiMetrics.crdTarget;
+            const totalPct = totalTarget > 0 ? ((totalActual / totalTarget) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-total-portfolio').innerText = `₱${totalActual.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}M`;
+            document.getElementById('kpi-total-target').innerText = ` / ₱${totalTarget.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}M Target`;
+            document.getElementById('kpi-total-percent').innerText = totalPct + '%';
+            document.getElementById('kpi-total-bar').style.width = Math.min(totalPct, 100) + '%';
+
+            // SDID Card & Bar
+            const sdidPct = kpiMetrics.sdidTarget > 0 ? ((kpiMetrics.sdidActual / kpiMetrics.sdidTarget) * 100).toFixed(1) : 0;
+            document.getElementById('kpi-sdid-val').innerText = `₱${kpiMetrics.sdidActual}M`;
+            document.getElementById('kpi-sdid-tgt').innerText = `₱${kpiMetrics.sdidTarget}M`;
+            document.getElementById('kpi-sdid-pct').innerText = `(${sdidPct}%)`;
+            document.getElementById('kpi-sdid-bar').style.width = Math.min(sdidPct, 100) + '%';
+
+            // CRD Card & Bar
+            const crdPct = kpiMetrics.crdTarget > 0 ? ((kpiMetrics.crdActual / kpiMetrics.crdTarget) * 100).toFixed(1) : 0;
+            document.getElementById('kpi-crd-val').innerText = `₱${kpiMetrics.crdActual}M`;
+            document.getElementById('kpi-crd-tgt').innerText = `₱${kpiMetrics.crdTarget}M`;
+            document.getElementById('kpi-crd-pct').innerText = `(${crdPct}%)`;
+            document.getElementById('kpi-crd-bar').style.width = Math.min(crdPct, 100) + '%';
+
+            // Revenue Card & Bar
+            const revPct = kpiMetrics.revTarget > 0 ? ((kpiMetrics.revActual / kpiMetrics.revTarget) * 100).toFixed(1) : 0;
+            document.getElementById('kpi-rev-actual').innerText = `₱${kpiMetrics.revActual}M`;
+            document.getElementById('kpi-rev-target').innerText = ` / ₱${kpiMetrics.revTarget}M Target`;
+            document.getElementById('kpi-rev-percent').innerText = revPct + '%';
+            document.getElementById('kpi-rev-bar').style.width = Math.min(revPct, 100) + '%';
+
+            // Attrition
+            document.getElementById('kpi-attrition-val').innerText = kpiMetrics.attrition + '%';
+            document.getElementById('kpi-attrition-target').innerText = '19.0%';
+
+            document.getElementById('totalInitiativesCount').innerText = totalItems;
+
+            // Pillar dynamic values
+            const p1 = document.getElementById('pillar1-val1');
+            const bbodDiff = (kpiMetrics.bbodActual - kpiMetrics.bbodTarget).toFixed(1);
+            const bbodDiffStr = bbodDiff >= 0 ? `(+₱${bbodDiff}M)` : `(-₱${Math.abs(bbodDiff)}M)`;
+            if (p1) p1.innerText = `₱${kpiMetrics.bbodActual}M / ₱${kpiMetrics.bbodTarget}M ${bbodDiffStr}`;
+            
+            const p3_1 = document.getElementById('pillar3-val1');
+            if (p3_1) p3_1.innerText = `₱${kpiMetrics.sdidActual}M / ₱${kpiMetrics.sdidTarget}M`;
+            const p3_2 = document.getElementById('pillar3-val2');
+            if (p3_2) p3_2.innerText = `₱${kpiMetrics.crdActual}M / ₱${kpiMetrics.crdTarget}M`;
+            const p4 = document.getElementById('pillar4-val1');
+            if (p4) p4.innerText = `${kpiMetrics.attrition}% (≤19.0%)`;
+
+            // Tab 3 Financials
+            document.getElementById('tab3-bbod-act').innerText = `Accumulated: ₱${kpiMetrics.bbodActual}M`;
+            document.getElementById('tab3-bbod-tgt').innerText = `Target: ₱${kpiMetrics.bbodTarget}M (Full Year: ₱667.0M)`;
+            
+            const bbodBar = document.getElementById('tab3-bbod-bar');
+            if(bbodBar) {
+                const pct = (kpiMetrics.bbodActual / kpiMetrics.bbodTarget) * 100;
+                bbodBar.style.width = Math.min(pct, 100) + '%';
+            }
+
+            document.getElementById('tab3-crd-act').innerText = `Actual: ₱${kpiMetrics.crdActual}M`;
+            document.getElementById('tab3-crd-tgt').innerText = `Target: ₱${kpiMetrics.crdTarget}M`;
+            document.getElementById('tab3-sdid-act').innerText = `Actual: ₱${kpiMetrics.sdidActual}M`;
+            document.getElementById('tab3-sdid-tgt').innerText = `Target: ₱${kpiMetrics.sdidTarget}M`;
+            document.getElementById('tab3-sdid-goal').innerText = `Goal: ₱${kpiMetrics.sdidTarget}M Year-End Target`;
+
+            renderDoughnutLegend();
+            renderPortfolioFooter();
+            renderQuarterlyTagBadges();
+        }
+
+        // Status Counts Helper
+        function getStatusCounts() {
+            let exceeded = strategicData.filter(i => i.status === 'Exceeded Target' || i.status === 'Exceeded').length;
+            let done = strategicData.filter(i => i.status === 'Done').length;
+            let onTrack = strategicData.filter(i => i.status === 'On Track').length;
+            let due = strategicData.filter(i => i.status === 'Due/Pending' || i.status === 'Due').length;
+            let behind = strategicData.filter(i => i.status.includes('Behind')).length;
+            let notDueDone = strategicData.filter(i => i.status === 'NOT YET DUE BUT DONE').length;
+            return { exceeded, done, onTrack, due, behind, notDueDone };
+        }
+
+        function renderDoughnutLegend() {
+            const counts = getStatusCounts();
+            const total = strategicData.length || 1;
+            const grid = document.getElementById('doughnutLegendGrid');
+            grid.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-700 flex-shrink-0"></span> 
+                    <span>Exceeded Target (${counts.exceeded}) <span class="text-slate-400 text-[10px]">${((counts.exceeded/total)*100).toFixed(1)}%</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></span> 
+                    <span>Done (${counts.done}) <span class="text-slate-400 text-[10px]">${((counts.done/total)*100).toFixed(1)}%</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500 flex-shrink-0"></span> 
+                    <span>On Track (${counts.onTrack}) <span class="text-slate-400 text-[10px]">${((counts.onTrack/total)*100).toFixed(1)}%</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></span> 
+                    <span>Due / Pending (${counts.due}) <span class="text-slate-400 text-[10px]">${((counts.due/total)*100).toFixed(1)}%</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-orange-500 flex-shrink-0"></span> 
+                    <span>Behind Target (${counts.behind}) <span class="text-slate-400 text-[10px]">${((counts.behind/total)*100).toFixed(1)}%</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-purple-500 flex-shrink-0"></span> 
+                    <span>Not Due Done (${counts.notDueDone}) <span class="text-slate-400 text-[10px]">${((counts.notDueDone/total)*100).toFixed(1)}%</span></span>
+                </div>
+            `;
+        }
+
+        function renderPortfolioFooter() {
+            const footer = document.getElementById('portfolioSummaryFooter');
+            const bbodPct = kpiMetrics.bbodTarget > 0 ? ((kpiMetrics.bbodActual/kpiMetrics.bbodTarget)*100).toFixed(1) : 0;
+            const crdPct = kpiMetrics.crdTarget > 0 ? ((kpiMetrics.crdActual/kpiMetrics.crdTarget)*100).toFixed(1) : 0;
+            const sdidPct = kpiMetrics.sdidTarget > 0 ? ((kpiMetrics.sdidActual/kpiMetrics.sdidTarget)*100).toFixed(1) : 0;
+
+            footer.innerHTML = `
+                <div><span class="font-bold text-emerald-700">BBOD Deposits:</span> ₱${kpiMetrics.bbodActual}M / ₱${kpiMetrics.bbodTarget}M <span class="text-emerald-700 font-semibold">(Exceeded ${bbodPct}%)</span></div>
+                <div><span class="font-bold text-blue-600">CRD Portfolio:</span> ₱${kpiMetrics.crdActual}M / ₱${kpiMetrics.crdTarget}M <span class="text-slate-400 font-semibold">(${crdPct}%)</span></div>
+                <div><span class="font-bold text-orange-500">SDID Portfolio:</span> ₱${kpiMetrics.sdidActual}M / ₱${kpiMetrics.sdidTarget}M <span class="text-slate-400 font-semibold">(${sdidPct}%)</span></div>
+            `;
+        }
+
+        // Render Quarterly Tag Badges explicitly listing numbers under chart
+        function renderQuarterlyTagBadges() {
+            const container = document.getElementById('quarterlyTagBadgesContainer');
+            if(!container) return;
+
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            let html = '';
+
+            quarters.forEach(q => {
+                const items = strategicData.filter(i => i.quarter.includes(q));
+                const total = items.length;
+                const exceeded = items.filter(i => i.status === 'Exceeded Target' || i.status === 'Exceeded').length;
+                const done = items.filter(i => i.status === 'Done' || i.status === 'NOT YET DUE BUT DONE').length;
+                const onTrack = items.filter(i => i.status === 'On Track').length;
+                const due = items.filter(i => i.status === 'Due/Pending' || i.status === 'Due').length;
+                const behind = items.filter(i => i.status.includes('Behind')).length;
+
+                let tagSummary = [];
+                if (exceeded > 0) tagSummary.push(`<span class="px-2 py-0.5 rounded bg-emerald-800 text-white font-bold">${exceeded} Exceeded</span>`);
+                if (done > 0) tagSummary.push(`<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${done} Done</span>`);
+                if (onTrack > 0) tagSummary.push(`<span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">${onTrack} On-Track</span>`);
+                if (due > 0) tagSummary.push(`<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">${due} Due</span>`);
+                if (behind > 0) tagSummary.push(`<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 font-bold">${behind} Behind Target</span>`);
+
+                const successRate = total > 0 ? Math.round(((exceeded + done + onTrack) / total) * 100) : 0;
+
+                html += `
+                    <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+                            <span class="font-bold text-slate-800 text-xs">${q} Overview</span>
+                            <span class="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full">${total} Items Total</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1 text-[11px]">
+                            ${tagSummary.join(' ')}
+                        </div>
+                        <p class="text-[10px] text-slate-500 font-medium pt-1">Healthy Ratio: <strong>${successRate}%</strong></p>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 1. Doughnut Chart Init
+        function initStatusDoughnut() {
+            const ctx = document.getElementById('statusDoughnutChart').getContext('2d');
+            const counts = getStatusCounts();
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Exceeded Target', 'Done', 'On Track', 'Due / Pending', 'Behind Target', 'Not Due Done'],
+                    datasets: [{
+                        data: [counts.exceeded, counts.done, counts.onTrack, counts.due, counts.behind, counts.notDueDone],
+                        backgroundColor: ['#047857', '#10b981', '#3b82f6', '#f59e0b', '#f97316', '#a855f7'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+        }
+
+        // 2. Portfolio Bar Chart Init
+        function initPortfolioBarChart() {
+            const ctx = document.getElementById('portfolioBarChart').getContext('2d');
+            portfolioChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['BBOD Deposits', 'CRD Portfolio', 'SDID Portfolio'],
+                    datasets: [
+                        {
+                            label: 'Actual / Accumulated Amount (₱M)',
+                            data: [kpiMetrics.bbodActual, kpiMetrics.crdActual, kpiMetrics.sdidActual],
+                            backgroundColor: ['#047857', '#3b82f6', '#f97316'],
+                            borderRadius: 6,
+                            barThickness: 24
+                        },
+                        {
+                            label: 'Target Amount (₱M)',
+                            data: [kpiMetrics.bbodTarget, kpiMetrics.crdTarget, kpiMetrics.sdidTarget],
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6,
+                            barThickness: 24
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: function(v) { return '₱' + v + 'M'; } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // 3. Quarterly Progress Chart Init
+        function initQuarterlyProgressChart() {
+            const ctx = document.getElementById('quarterlyProgressChart').getContext('2d');
+            quarterlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        ['Q1 (6 Items)'],
+                        ['Q2 (8 Items)'],
+                        ['Q3 (4 Items)'],
+                        ['Q4 (14 Items)']
+                    ],
+                    datasets: [
+                        { label: 'Exceeded Target', data: getQuarterCounts('Exceeded'), backgroundColor: '#047857' },
+                        { label: 'Done / Early Done', data: getQuarterCounts('Done'), backgroundColor: '#10b981' },
+                        { label: 'On Track', data: getQuarterCounts('On Track'), backgroundColor: '#3b82f6' },
+                        { label: 'Due / Pending', data: getQuarterCounts('Due/Pending'), backgroundColor: '#f59e0b' },
+                        { label: 'Behind Target / Base', data: getQuarterCounts('Behind'), backgroundColor: '#ef4444' },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+        }
+
+        function getQuarterCounts(statusType) {
+            const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+            return quarters.map(q => {
+                return strategicData.filter(item => {
+                    let matchesQ = item.quarter.includes(q);
+                    if (!matchesQ) return false;
+                    if (statusType === 'Exceeded') return item.status === 'Exceeded Target' || item.status === 'Exceeded';
+                    if (statusType === 'Done') return item.status === 'Done' || item.status === 'NOT YET DUE BUT DONE';
+                    if (statusType === 'On Track') return item.status === 'On Track';
+                    if (statusType === 'Due/Pending') return item.status === 'Due/Pending' || item.status === 'Due';
+                    if (statusType === 'Behind') return item.status.includes('Behind');
+                    return false;
+                }).length;
+            });
+        }
+
+        // Dynamically re-render charts
+        function updateCharts() {
+            const counts = getStatusCounts();
+            statusChart.data.datasets[0].data = [counts.exceeded, counts.done, counts.onTrack, counts.due, counts.behind, counts.notDueDone];
+            statusChart.update();
+
+            portfolioChart.data.datasets[0].data = [kpiMetrics.bbodActual, kpiMetrics.crdActual, kpiMetrics.sdidActual];
+            portfolioChart.data.datasets[1].data = [kpiMetrics.bbodTarget, kpiMetrics.crdTarget, kpiMetrics.sdidTarget];
+            portfolioChart.update();
+
+            quarterlyChart.data.datasets[0].data = getQuarterCounts('Exceeded');
+            quarterlyChart.data.datasets[1].data = getQuarterCounts('Done');
+            quarterlyChart.data.datasets[2].data = getQuarterCounts('On Track');
+            quarterlyChart.data.datasets[3].data = getQuarterCounts('Due/Pending');
+            quarterlyChart.data.datasets[4].data = getQuarterCounts('Behind');
+            quarterlyChart.update();
+        }
+
+        // Quarterly Summary Card Dynamic Update
+        function filterQuarterView(quarter) {
+            document.querySelectorAll('.q-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-sky-700', 'shadow-sm');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById(`qbtn-${quarter}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-white', 'text-sky-700', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            const qItems = strategicData.filter(i => i.quarter.includes(quarter));
+            const totalQ = qItems.length;
+            const exceededQ = qItems.filter(i => i.status === 'Exceeded Target' || i.status === 'Exceeded').length;
+            const doneQ = qItems.filter(i => i.status === 'Done' || i.status === 'NOT YET DUE BUT DONE').length;
+            const onTrackQ = qItems.filter(i => i.status === 'On Track').length;
+            const pctQ = totalQ > 0 ? Math.round(((exceededQ + doneQ + onTrackQ) / totalQ) * 100) : 0;
+
+            const card = document.getElementById('quarter-summary-card');
+            card.innerHTML = `
+                <div>
+                    <span class="text-[10px] font-bold tracking-wider text-sky-700 uppercase">${quarter} EXECUTIVE SUMMARY</span>
+                    <h3 class="text-lg font-extrabold text-slate-900 mt-0.5">${pctQ}% Healthy Executed (${exceededQ > 0 ? exceededQ + ' Exceeded / ' : ''}${doneQ} Done / ${onTrackQ} On Track)</h3>
+                    <p class="text-xs text-slate-600 mt-1">Tracking execution status across strategic departmental deliverables in ${quarter}.</p>
+                </div>
+                <div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                        ${totalQ} Indicators Tracked
+                    </span>
+                </div>`;
+        }
+
+        // Populate Table with Row Actions
+        function populateTable() {
+            const tbody = document.getElementById('actionPlanTableBody');
+            tbody.innerHTML = '';
+
+            strategicData.forEach((item, index) => {
+                let statusBadge = '';
+                if (item.status === 'Exceeded Target' || item.status === 'Exceeded') {
+                    statusBadge = `<span class="bg-emerald-800 text-white font-bold px-2 py-0.5 rounded text-[10px]">Exceeded Target</span>`;
+                } else if (item.status === 'Done') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">Done</span>`;
+                } else if (item.status === 'On Track') {
+                    statusBadge = `<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">On Track</span>`;
+                } else if (item.status === 'NOT YET DUE BUT DONE') {
+                    statusBadge = `<span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[10px]">Not Due Done</span>`;
+                } else if (item.status === 'Due/Pending' || item.status === 'Due') {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">Due / Pending</span>`;
+                } else if (item.status.includes('Behind')) {
+                    statusBadge = `<span class="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-[10px]">${item.status}</span>`;
+                } else {
+                    statusBadge = `<span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px]">${item.status}</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-800 whitespace-nowrap">${item.quarter}</td>
+                    <td class="p-3 font-bold text-sky-700 whitespace-nowrap">${item.dept}</td>
+                    <td class="p-3 font-medium text-slate-900">${item.initiative}</td>
+                    <td class="p-3 text-slate-700 font-medium">${item.target}</td>
+                    <td class="p-3 whitespace-nowrap">${statusBadge}</td>
+                    <td class="p-3 text-slate-600 text-[11px] min-w-[180px]">${item.justification}</td>
+                    <td class="p-3 text-slate-600 text-[11px] min-w-[180px]">${item.catchup}</td>
+                    <td class="p-3 text-center whitespace-nowrap action-col">
+                        <button onclick="editInitiative(${index})" class="p-1.5 bg-sky-50 text-sky-600 hover:bg-sky-100 rounded mr-1 transition" title="Edit Initiative"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteInitiative(${index})" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded transition" title="Delete Initiative"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            filterTable();
+        }
+
+        // Search & Filter Logic for Table
+        function filterTable() {
+            const search = document.getElementById('tableSearch').value.toLowerCase();
+            const qFilter = document.getElementById('quarterFilter').value;
+            const dFilter = document.getElementById('deptFilter').value;
+            const sFilter = document.getElementById('statusFilter').value;
+
+            const rows = document.querySelectorAll('#actionPlanTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const quarter = row.children[0].innerText.trim();
+                const dept = row.children[1].innerText.trim();
+                const statusText = row.children[4].innerText.trim();
+
+                let matchesSearch = text.includes(search);
+                let matchesQuarter = (qFilter === 'ALL' || quarter.includes(qFilter));
+                let matchesDept = (dFilter === 'ALL' || dept.includes(dFilter));
+                let matchesStatus = (sFilter === 'ALL' || statusText.toLowerCase().includes(sFilter.toLowerCase()));
+
+                if (matchesSearch && matchesQuarter && matchesDept && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Initiative Modal Handlers
+        function openAddInitiativeModal() {
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-plus-circle"></i> Add New Strategic Initiative`;
+            document.getElementById('editIndex').value = '-1';
+            document.getElementById('formQuarter').value = 'Q4';
+            document.getElementById('formDept').value = 'BBOD';
+            document.getElementById('formInitiative').value = '';
+            document.getElementById('formTarget').value = '';
+            document.getElementById('formStatus').value = 'On Track';
+            document.getElementById('formJustification').value = '';
+            document.getElementById('formCatchup').value = '';
+            document.getElementById('initiativeModal').classList.remove('hidden');
+        }
+
+        function editInitiative(index) {
+            const item = strategicData[index];
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit Strategic Initiative`;
+            document.getElementById('editIndex').value = index;
+            document.getElementById('formQuarter').value = item.quarter;
+            document.getElementById('formDept').value = item.dept;
+            document.getElementById('formInitiative').value = item.initiative;
+            document.getElementById('formTarget').value = item.target;
+            document.getElementById('formStatus').value = item.status;
+            document.getElementById('formJustification').value = item.justification;
+            document.getElementById('formCatchup').value = item.catchup;
+            document.getElementById('initiativeModal').classList.remove('hidden');
+        }
+
+        function closeInitiativeModal() {
+            document.getElementById('initiativeModal').classList.add('hidden');
+        }
+
+        function saveInitiativeForm(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('editIndex').value);
+            const newItem = {
+                quarter: document.getElementById('formQuarter').value,
+                dept: document.getElementById('formDept').value,
+                initiative: document.getElementById('formInitiative').value,
+                target: document.getElementById('formTarget').value,
+                status: document.getElementById('formStatus').value,
+                justification: document.getElementById('formJustification').value,
+                catchup: document.getElementById('formCatchup').value
+            };
+
+            if (index === -1) {
+                strategicData.unshift(newItem);
+            } else {
+                strategicData[index] = newItem;
+            }
+
+            localStorage.setItem('lifebank_strategicData_v6', JSON.stringify(strategicData));
+            closeInitiativeModal();
+            updateKpiDisplay();
+            updateCharts();
+            populateTable();
+            showToast("Initiative Saved Successfully");
+        }
+
+        function deleteInitiative(index) {
+            if (confirm("Are you sure you want to delete this strategic initiative?")) {
+                strategicData.splice(index, 1);
+                localStorage.setItem('lifebank_strategicData_v6', JSON.stringify(strategicData));
+                updateKpiDisplay();
+                updateCharts();
+                populateTable();
+                showToast("Initiative Deleted");
+            }
+        }
+
+        // KPI Edit Modal Handlers
+        function openEditKpiModal() {
+            document.getElementById('editSdidActual').value = kpiMetrics.sdidActual;
+            document.getElementById('editSdidTarget').value = kpiMetrics.sdidTarget;
+            document.getElementById('editCrdActual').value = kpiMetrics.crdActual;
+            document.getElementById('editCrdTarget').value = kpiMetrics.crdTarget;
+            document.getElementById('editBbodActual').value = kpiMetrics.bbodActual;
+            document.getElementById('editBbodTarget').value = kpiMetrics.bbodTarget;
+            document.getElementById('editRevActual').value = kpiMetrics.revActual;
+            document.getElementById('editRevTarget').value = kpiMetrics.revTarget;
+            document.getElementById('editAttrition').value = kpiMetrics.attrition;
+            document.getElementById('kpiModal').classList.remove('hidden');
+        }
+
+        function closeEditKpiModal() {
+            document.getElementById('kpiModal').classList.add('hidden');
+        }
+
+        function saveKpiForm(e) {
+            e.preventDefault();
+            kpiMetrics.sdidActual = parseFloat(document.getElementById('editSdidActual').value);
+            kpiMetrics.sdidTarget = parseFloat(document.getElementById('editSdidTarget').value);
+            kpiMetrics.crdActual = parseFloat(document.getElementById('editCrdActual').value);
+            kpiMetrics.crdTarget = parseFloat(document.getElementById('editCrdTarget').value);
+            kpiMetrics.bbodActual = parseFloat(document.getElementById('editBbodActual').value);
+            kpiMetrics.bbodTarget = parseFloat(document.getElementById('editBbodTarget').value);
+            kpiMetrics.revActual = parseFloat(document.getElementById('editRevActual').value);
+            kpiMetrics.revTarget = parseFloat(document.getElementById('editRevTarget').value);
+            kpiMetrics.attrition = parseFloat(document.getElementById('editAttrition').value);
+
+            localStorage.setItem('lifebank_kpiMetrics_v6', JSON.stringify(kpiMetrics));
+            closeEditKpiModal();
+            updateKpiDisplay();
+            updateCharts();
+            showToast("Financial Metrics Updated");
+        }
+    </script>
+</body>
+</html>
